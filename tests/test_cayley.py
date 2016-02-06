@@ -11,8 +11,9 @@ class CayleyTests(unittest.TestCase):
 			'g.Emit(["test_item_1", "test_item_2"])')
 
 	def test_emit_dict(self):
-		self.assertEqual(g.Emit({"test_key_1": 1, "test_key_2": 2}),
-			"g.Emit({\"test_key_2\": 2, \"test_key_1\": 1})")
+		emit = g.Emit({"test_key_1": 1, "test_key_2": 2})
+		self.assertTrue(emit == "g.Emit({\"test_key_1\": 1, \"test_key_2\": 2})"
+			or emit == "g.Emit({\"test_key_2\": 2, \"test_key_1\": 1})")
 
 	def test_vertex_all(self):
 		self.assertEqual(g.V().All(), "g.V().All()")
