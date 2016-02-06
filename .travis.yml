@@ -11,7 +11,9 @@ python:
 before_script:
   - "wget https://github.com/google/cayley/releases/download/v0.4.1/cayley_0.4.1_linux_amd64.tar.gz"
   - "tar -xvzf cayley_0.4.1_linux_amd64.tar.gz"
-  - "./cayley_0.4.1_linux_amd64/cayley http --dbpath=cayley_0.4.1_linux_amd64/data/testdata.nq &"
+  - "cd cayley_0.4.1_linux_amd64"
+  - "./cayley http --dbpath=data/testdata.nq &"
+  - "cd .."
 install:
   - "pip install -r requirements.txt"
   - "python setup.py install"
