@@ -13,5 +13,8 @@ before_script:
   - "cd .."
 install:
   - "pip install -r requirements.txt"
+  - "pip install coverage"
+  - "pip install python-coveralls"
   - "python setup.py install"
-script: py.test tests
+script: nosetests --with-coverage --cover-branches --cover-erase --cover-package=cayley
+after_success: coveralls
