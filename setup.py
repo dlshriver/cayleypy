@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name="cayley",
-	  version="0.1",
+	  version="0.2",
 	  description="Python client for the Cayley graph database",
 	  author="David Shriver",
 	  author_email="davidshriver@outlook.com",

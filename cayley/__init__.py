@@ -77,22 +77,26 @@ class _Path(object):
 	def __init__(self):
 		self.queries = []
 		self.queries.append("g")
+		self.queries.append("Morphism()")
+
+	def __repr__(self):
+		return ".".join(self.queries)
 
 	# Traversals
 	def Out(self, predicate_path=None, tags=None):
 		if predicate_path is None:
 			if tags is not None:
-				raise ValueError("Cannot have tags without predicates.")
+				raise TypeError("Cannot have tags without predicates.")
 			self.queries.append("Out()")
 			return self
 		if isinstance(predicate_path, list):
 			for pred_path in predicate_path:
 				if not isinstance(pred_path, str):
-					raise ValueError("Predicate paths must be strings.")
+					raise TypeError("Predicate paths must be strings.")
 		if isinstance(tags, list):
 			for tag in tags:
 				if not isinstance(tag, str):
-					raise ValueError("Tags must be strings.")
+					raise TypeError("Tags must be strings.")
 		if tags is None:
 			self.queries.append("Out(%s)" % (repr(predicate_path)))
 		else:
@@ -102,17 +106,17 @@ class _Path(object):
 	def In(self, predicate_path=None, tags=None):
 		if predicate_path is None:
 			if tags is not None:
-				raise ValueError("Cannot have tags without predicates.")
+				raise TypeError("Cannot have tags without predicates.")
 			self.queries.append("In()")
 			return self
 		if isinstance(predicate_path, list):
 			for pred_path in predicate_path:
 				if not isinstance(pred_path, str):
-					raise ValueError("Predicate paths must be strings.")
+					raise TypeError("Predicate paths must be strings.")
 		if isinstance(tags, list):
 			for tag in tags:
 				if not isinstance(tag, str):
-					raise ValueError("Tags must be strings.")
+					raise TypeError("Tags must be strings.")
 		if tags is None:
 			self.queries.append("In(%s)" % (repr(predicate_path)))
 		else:
@@ -122,17 +126,17 @@ class _Path(object):
 	def Both(self, predicate_path=None, tags=None):
 		if predicate_path is None:
 			if tags is not None:
-				raise ValueError("Cannot have tags without predicates.")
+				raise TypeError("Cannot have tags without predicates.")
 			self.queries.append("Both()")
 			return self
 		if isinstance(predicate_path, list):
 			for pred_path in predicate_path:
 				if not isinstance(pred_path, str):
-					raise ValueError("Predicate paths must be strings.")
+					raise TypeError("Predicate paths must be strings.")
 		if isinstance(tags, list):
 			for tag in tags:
 				if not isinstance(tag, str):
-					raise ValueError("Tags must be strings.")
+					raise TypeError("Tags must be strings.")
 		if tags is None:
 			self.queries.append("Both(%s)" % (repr(predicate_path)))
 		else:
@@ -140,46 +144,95 @@ class _Path(object):
 		return self
 
 	def Is(self, node, *nodes):
-		raise NotImplementedError()
+		if not isinstance(node, str):
+			raise TypeError()
+		for n in nodes:
+			if not isinstance(n, str):
+				raise TypeError()
+		if nodes:
+			self.queries.append("Is(%s)" % repr([node] + list(nodes)))
+		else:
+			self.queries.append("Is(%s)" % repr(node))
+		return self
 
 	def Has(self, predicate, object):
-		raise NotImplementedError()
+		if not isinstance(predicate, str):
+			raise TypeError()
+		if not isinstance(object, str):
+			raise TypeError()
+		self.queries.append("Has(%s,%s)" % (repr(predicate), repr(object)))
+		return self
 
 	def LabelContext(self, label_path=None, tags=None):
-		raise NotImplementedError()
+		if label_path is None:
+			if not tags is None:
+				raise ValueError()
+			self.queries.append("LabelContext()")
+			return self
+		if tags is None:
+			self.queries.append("LabelContext(%s)" % repr(label_path))
+		else:
+			self.queries.append("LabelContext(%s,%s)" % (repr(label_path), repr(tags)))
+		return self
 
 	# Tagging
 	def Tag(self, tag):
-		raise NotImplementedError()
+		if not isinstance(tag, str):
+			raise TypeError()
+		self.queries.append("Tag(%s)" % repr(tag))
+		return self
 
 	def Back(self, tag):
-		raise NotImplementedError()
+		if not isinstance(tag, str):
+			raise TypeError()
+		self.queries.append("Back(%s)" % repr(tag))
+		return self
 
 	def Save(self, predicate, tag):
-		raise NotImplementedError()
+		if not isinstance(predicate, str):
+			raise TypeError()
+		if not isinstance(tag, str):
+			raise TypeError()
+		self.queries.append("Save(%s,%s)" % (repr(predicate), repr(tag)))
+		return self
 
 	# Joining
 	def Intersect(self, query):
-		raise NotImplementedError()
+		if not isinstance(query, _Query):
+			return TypeError()
+		self.queries.append("Intersect(%s)" % repr(query))
+		return self
 	def And(self, query):
 		return self.Intersect(query)
 
 	def Union(self, query):
-		raise NotImplementedError()
+		if not isinstance(query, _Query):
+			return TypeError()
+		self.queries.append("Union(%s)" % repr(query))
+		return self
 	def Or(self, query):
 		return self.Union(query)
 
 	def Except(self, query):
-		raise NotImplementedError()
+		if not isinstance(query, _Query):
+			return TypeError()
+		self.queries.append("Except(%s)" % repr(query))
+		return self
 	def Difference(self, query):
 		return self.Except(query)
 
 	# Morphisms
 	def Follow(self, morphism):
-		raise NotImplementedError()
+		if not isinstance(morphism, _Path):
+			raise TypeError()
+		self.queries.append("Follow(%s)" % repr(morphism))
+		return self
 
 	def FollowR(self, morphism):
-		raise NotImplementedError()
+		if not isinstance(morphism, _Path):
+			raise TypeError()
+		self.queries.append("FollowR(%s)" % repr(morphism))
+		return self
 
 class _Query(_Path):
 	def __init__(self, *node_ids):
@@ -189,9 +242,6 @@ class _Query(_Path):
 			self.queries.append("V(%s)" % repr(list(node_ids)))
 		else:
 			self.queries.append("V()")
-
-	def __repr__(self):
-		return ".".join(self.queries)
 
 	def All(self):
 		self.queries.append("All()")
