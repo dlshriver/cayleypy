@@ -273,7 +273,7 @@ class _Query(_Path):
 		return ".".join(self.queries)
 
 	def ForEach(self, arg1, arg2=None):
-		if isinstance(arg1, int) or isinstance(arg1, long):
+		if isinstance(arg1, int):
 			limit = arg1
 			callback = arg2
 		else:
