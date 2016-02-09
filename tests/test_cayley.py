@@ -34,11 +34,15 @@ class CayleyTests(unittest.TestCase):
 		self.assertEqual(g.V().TagValue(), "g.V().TagValue()")
 
 	def test_vertex_foreach(self):
-		with self.assertRaises(NotImplementedError):
-			self.assertEqual(g.V().ForEach(), "g.V().ForEach()")
+		self.assertEqual(g.V().ForEach("function(d) { g.Emit(d) }"),
+			"g.V().ForEach('function(d) { g.Emit(d) }')")
+
+	def test_vertex_foreach_with_limit(self):
+		self.assertEqual(g.V().Map(1, "function(d) { g.Emit(d) }"),
+			"g.V().ForEach(1,'function(d) { g.Emit(d) }')")
 
 	def test_path_out_all(self):
-		self.assertEqual(g.V().Out().All(), "g.V().Out().All()")
+		self.assertEqual(g.V().Out().All(), "g.V().Out(null).All()")
 
 	def test_path_out_pred_path_all(self):
 		self.assertEqual(g.V("alice").Out("follows").All(),
@@ -53,7 +57,7 @@ class CayleyTests(unittest.TestCase):
 			"g.V(['bob']).Out('status','pred').All()")
 
 	def test_path_in_all(self):
-		self.assertEqual(g.V().In().All(), "g.V().In().All()")
+		self.assertEqual(g.V().In().All(), "g.V().In(null).All()")
 
 	def test_path_in_pred_path_all(self):
 		self.assertEqual(g.V("bob").In("follows").All(),
@@ -68,7 +72,7 @@ class CayleyTests(unittest.TestCase):
 			"g.V(['bob']).In('follows','pred').All()")
 
 	def test_path_both_all(self):
-		self.assertEqual(g.V().Both().All(), "g.V().Both().All()")
+		self.assertEqual(g.V().Both().All(), "g.V().Both(null).All()")
 
 	def test_path_both_pred_path_all(self):
 		self.assertEqual(g.V("bob").Both("follows").All(),
@@ -94,7 +98,7 @@ class CayleyTests(unittest.TestCase):
 			"g.V().Has('follows','alice').All()")
 
 	def test_path_label_context_empty(self):
-		self.assertEqual(g.V().LabelContext().All(), "g.V().LabelContext().All()")
+		self.assertEqual(g.V().LabelContext().All(), "g.V().LabelContext(null).All()")
 
 	def test_path_label_context_string_path(self):
 		self.assertEqual(g.V().LabelContext("alice").All(),

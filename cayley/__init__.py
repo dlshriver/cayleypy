@@ -14,10 +14,16 @@ class CayleyClient(object):
 		if response.status_code == requests.codes.ok:
 			return response.json()
 		else:
-			return None
+			raise Exception(response.json["error"])
 
-	def shape(self):
-		raise NotImplementedError()
+	def shape(self, data):
+		if not isinstance(data, str):
+			raise TypeError()
+		response = requests.post("%s/shape/%s" % (self._url, self._lang), data)
+		if response.status_code == requests.codes.ok:
+			return response.json()
+		else:
+			raise Exception(response.json["error"])
 
 	def write(self, subject, predicate, object, provenance=None):
 		if not (isinstance(subject, str) and
@@ -35,10 +41,17 @@ class CayleyClient(object):
 		if response.status_code == requests.codes.ok:
 			return response.json()
 		else:
-			return None
+			raise Exception(response.json["error"])
 
 	def write_file(self, filename):
-		raise NotImplementedError()
+		if not isinstance(filename, str):
+			raise TypeError()
+		nquad_file = {'NQuadFile': open(filename, 'rb')}
+		response = requests.post("%s/write/file/nquad" % (self._url), files=nquad_file)
+		if response.status_code == requests.codes.ok:
+			return response.json()
+		else:
+			raise Exception(response.json()["error"])
 
 	def delete(self, subject, predicate, object, provenance=None):
 		if not (isinstance(subject, str) and
@@ -56,7 +69,11 @@ class CayleyClient(object):
 		if response.status_code == requests.codes.ok:
 			return response.json()
 		else:
-			return None
+			raise Exception(response.json["error"])
+
+class _null(object):
+	def __repr__(self):
+		return "null"
 
 class _Graph(object):
 	def Vertex(self, *node_ids):
@@ -85,10 +102,7 @@ class _Path(object):
 	# Traversals
 	def Out(self, predicate_path=None, tags=None):
 		if predicate_path is None:
-			if tags is not None:
-				raise TypeError("Cannot have tags without predicates.")
-			self.queries.append("Out()")
-			return self
+			predicate_path = _null()
 		if isinstance(predicate_path, list):
 			for pred_path in predicate_path:
 				if not isinstance(pred_path, str):
@@ -105,10 +119,7 @@ class _Path(object):
 
 	def In(self, predicate_path=None, tags=None):
 		if predicate_path is None:
-			if tags is not None:
-				raise TypeError("Cannot have tags without predicates.")
-			self.queries.append("In()")
-			return self
+			predicate_path = _null()
 		if isinstance(predicate_path, list):
 			for pred_path in predicate_path:
 				if not isinstance(pred_path, str):
@@ -125,10 +136,7 @@ class _Path(object):
 
 	def Both(self, predicate_path=None, tags=None):
 		if predicate_path is None:
-			if tags is not None:
-				raise TypeError("Cannot have tags without predicates.")
-			self.queries.append("Both()")
-			return self
+			predicate_path = _null()
 		if isinstance(predicate_path, list):
 			for pred_path in predicate_path:
 				if not isinstance(pred_path, str):
@@ -165,10 +173,7 @@ class _Path(object):
 
 	def LabelContext(self, label_path=None, tags=None):
 		if label_path is None:
-			if not tags is None:
-				raise ValueError()
-			self.queries.append("LabelContext()")
-			return self
+			label_path = _null()
 		if tags is None:
 			self.queries.append("LabelContext(%s)" % repr(label_path))
 		else:
@@ -267,5 +272,21 @@ class _Query(_Path):
 		self.queries.append("TagValue()")
 		return ".".join(self.queries)
 
-	def ForEach(self, limit=None, callback=None):
-		raise NotImplementedError()
+	def ForEach(self, arg1, arg2=None):
+		if isinstance(arg1, int) or isinstance(arg1, long):
+			limit = arg1
+			callback = arg2
+		else:
+			limit = None
+			callback = arg1
+		if not isinstance(callback, str):
+			raise TypeError()
+		if limit is None:
+			self.queries.append("ForEach(%s)" % repr(callback))
+		else:
+			if not isinstance(limit, long) and not isinstance(limit, int):
+				raise TypeError()
+			self.queries.append("ForEach(%s,%s)" % (limit, repr(callback)))
+		return ".".join(self.queries)
+	def Map(self, arg1, arg2=None):
+		return self.ForEach(arg1, arg2)
