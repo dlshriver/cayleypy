@@ -31,9 +31,9 @@ class CayleyClientTests(unittest.TestCase):
 
 	def test_write_file(self):
 		client = CayleyClient()
-		response = client.write_file("C:/Users/David/Downloads/cayley_0.4.1_windows_amd64/data/30kmoviedata.nq.gz")
+		response = client.write_file("./data/testdata.nq")
 		self.assertTrue(isinstance(response, dict))
-		self.assertEqual(response["result"], "Successfully wrote 471705 quads.")
+		self.assertEqual(response["result"], "Successfully wrote 11 quads.")
 
 	def test_delete(self):
 		client = CayleyClient()
