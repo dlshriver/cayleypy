@@ -284,7 +284,7 @@ class _Query(_Path):
 		if limit is None:
 			self.queries.append("ForEach(%s)" % repr(callback))
 		else:
-			if not isinstance(limit, long) and not isinstance(limit, int):
+			if not isinstance(limit, int):
 				raise TypeError()
 			self.queries.append("ForEach(%s,%s)" % (limit, repr(callback)))
 		return ".".join(self.queries)
